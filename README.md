@@ -5,6 +5,7 @@ dich übergeben hat.
 
 [Unvollständige Skizze des Datenmodells](challenges_geldautomaten_skizze.png)
 
+
 ### Aufgabenstellung
 
 Eine Bank möchte eine Software zur Nutzung eines Bankkontos durch ihre Kunden bereitstellen. Hierbei fallen folgende

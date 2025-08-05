@@ -1,5 +1,8 @@
 package de.hc.geldautomaten.entities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -8,10 +11,12 @@ import java.util.Objects;
 import static java.util.Objects.requireNonNull;
 
 public class BankkontoImpl implements Bankkonto {
-        private final long kontonummer;
-        private final Kunde kunde;
-        private final String onlineBankingPin;
-        private BigDecimal kontostand;
+    private static final Logger logger = LoggerFactory.getLogger(BankkontoImpl.class);
+
+    private final long kontonummer;
+    private final Kunde kunde;
+    private final String onlineBankingPin;
+    private BigDecimal kontostand;
 
     public BankkontoImpl(long kontonummer, Kunde kunde, String onlineBankingPin, BigDecimal kontostand) {
         if (kontonummer <= 0) {
@@ -36,7 +41,11 @@ public class BankkontoImpl implements Bankkonto {
     @Override
     public boolean checkOnlineBankingPin(String pin) {
         if (pin == null) return false;
-        return pin.equals(onlineBankingPin);
+        boolean isPinCorrect = pin.equals(onlineBankingPin);
+        if (!isPinCorrect) {
+            logger.warn("Falsche Pin eingegeben für Konto {}.", kontonummer);
+        }
+        return isPinCorrect;
     }
 
     @Override
@@ -64,6 +73,7 @@ public class BankkontoImpl implements Bankkonto {
             throw new IllegalStateException("Kontostand nicht ausreichend. Aktuell: " + kontostand + ", benötigt: " + betrag);
         }
         kontostand = kontostand.subtract(betrag);
+        logger.info("ABHEBUNG: Betrag {} von Konto {} abgebucht. Neuer Kontostand: {}", betrag, kontonummer, kontostand);
     }
 
     @Override
@@ -73,6 +83,7 @@ public class BankkontoImpl implements Bankkonto {
             throw new IllegalArgumentException("Aufzuladender Betrag muss positiv sein.");
         }
         kontostand = kontostand.add(betrag);
+        logger.info("AUFLADUNG: Betrag {} auf Konto {} eingezahlt. Neuer Kontostand: {}", betrag, kontonummer, kontostand);
     }
 
     @Override

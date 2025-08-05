@@ -1,4 +1,7 @@
-package de.hc.geldautomaten;
+package de.hc.geldautomaten.services;
+
+import de.hc.geldautomaten.records.OnlineBankingSession;
+import de.hc.geldautomaten.repositories.Repository;
 
 import java.math.BigDecimal;
 

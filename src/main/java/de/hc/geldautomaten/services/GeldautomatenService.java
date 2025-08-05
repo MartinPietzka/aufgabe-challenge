@@ -1,4 +1,10 @@
-package de.hc.geldautomaten;
+package de.hc.geldautomaten.services;
+
+import de.hc.geldautomaten.entities.Geldautomat;
+import de.hc.geldautomaten.entities.Geldkarte;
+import de.hc.geldautomaten.records.GeldautomatSession;
+import de.hc.geldautomaten.records.Location;
+import de.hc.geldautomaten.repositories.Repository;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -6,7 +12,7 @@ import java.util.Optional;
 public interface GeldautomatenService {
 
     static GeldautomatenService create(Repository repository) {
-        return null;
+        return new GeldautomatenServiceImpl(repository);
     }
 
     long create(Location location, BigDecimal verfuegbaresBargeld);

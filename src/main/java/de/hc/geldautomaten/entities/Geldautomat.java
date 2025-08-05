@@ -1,4 +1,6 @@
-package de.hc.geldautomaten;
+package de.hc.geldautomaten.entities;
+
+import de.hc.geldautomaten.records.Location;
 
 import java.math.BigDecimal;
 

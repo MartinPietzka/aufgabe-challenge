@@ -1,4 +1,9 @@
-package de.hc.geldautomaten;
+package de.hc.geldautomaten.services;
+
+import de.hc.geldautomaten.Session;
+import de.hc.geldautomaten.entities.Bankkonto;
+import de.hc.geldautomaten.records.Kontoauszug;
+import de.hc.geldautomaten.repositories.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -6,7 +11,7 @@ import java.util.Optional;
 public interface KontoService {
 
     static KontoService create(Repository repository) {
-        return null;
+        return new KontoServiceImpl(repository);
     }
 
     Optional<Bankkonto> findByKontonummer(long kontonummer);

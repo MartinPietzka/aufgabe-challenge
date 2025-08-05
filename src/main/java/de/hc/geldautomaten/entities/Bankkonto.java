@@ -1,4 +1,4 @@
-package de.hc.geldautomaten;
+package de.hc.geldautomaten.entities;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

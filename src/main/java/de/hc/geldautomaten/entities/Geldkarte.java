@@ -1,4 +1,4 @@
-package de.hc.geldautomaten;
+package de.hc.geldautomaten.entities;
 
 public interface Geldkarte {
 

@@ -1,6 +1,4 @@
-package de.hc.geldautomaten;
-
-import de.hc.geldautomaten.Geldkarte;
+package de.hc.geldautomaten.entities;
 
 public interface Kunde {
 

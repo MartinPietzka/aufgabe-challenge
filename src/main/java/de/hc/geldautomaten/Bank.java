@@ -68,7 +68,7 @@ public class Bank {
          * Aufgabe III: Geldautomaten anhand der Location finden
          */
 
-//        Geldautomat geldautomat = findeGeldautomat(geldautomatenService, location);
+        Geldautomat geldautomat = findeGeldautomat(geldautomatenService, location);
 
         /*
          * Aufgabe IV: Am Geldautomaten "Anmelden"

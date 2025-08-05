@@ -5,26 +5,24 @@ import com.zaxxer.hikari.HikariDataSource;
 import de.hc.geldautomaten.Bank; // Um das DB-Schema zu erstellen
 import de.hc.geldautomaten.entities.Geldautomat;
 import de.hc.geldautomaten.records.Location;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import static org.assertj.core.api.Assertions.*;
 
-class RepositoryJdbcImplIntegrationTest {
+class RepositoryJdbcImplTest {
 
-    private DataSource dataSource;
+    private static DataSource dataSource;
     private RepositoryJdbcImpl repository;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUpDataBase() {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
         config.setUsername("sa");
@@ -33,11 +31,21 @@ class RepositoryJdbcImplIntegrationTest {
 
         Bank.erstelleDatenbank(dataSource);
 
+    }
+
+    @BeforeEach
+    void setUp() throws SQLException {
+        try (Connection con = dataSource.getConnection();
+             Statement s = con.createStatement()) {
+            s.execute("DROP ALL OBJECTS");
+            Bank.erstelleDatenbank(dataSource);
+        }
+
         repository = new RepositoryJdbcImpl(dataSource);
     }
 
-    @AfterEach
-    void closeDataSource() {
+    @AfterAll
+    static void closeDataSource() {
         ((HikariDataSource) dataSource).close();
     }
 
@@ -65,7 +73,6 @@ class RepositoryJdbcImplIntegrationTest {
     }
 
     @Test
-    @DisplayName("sollte eine IllegalStateException werfen, wenn keine Transaktion aktiv ist")
     void createGeldautomat_wennKeineTransaktionAktiv_sollteExceptionWerfen() {
         Location testLocation = new Location(50.123, 7.456);
         BigDecimal startBargeld = new BigDecimal("25000.00");

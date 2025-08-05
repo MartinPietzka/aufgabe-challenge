@@ -70,8 +70,34 @@ public class RepositoryJdbcImpl implements Repository {
 
     @Override
     public Optional<Geldautomat> findGeldautomatByLocation(Location location) {
-        return Optional.empty();
+        requireNonNull(location, "location darf nicht null sein");
+
+        String sql = """
+                SELECT *
+                FROM geldautomat
+                WHERE latitude = ? AND longitude = ?
+                """;
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setDouble(1, location.latitude());
+            ps.setDouble(2, location.longitude());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return Optional.empty();
+
+                long nummer = rs.getLong("automatennummer");
+                BigDecimal bargeld = rs.getBigDecimal("bargeld");
+                Geldautomat automat = new GeldautomatImpl(nummer, location, bargeld);
+                return Optional.of(automat);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("DB-Fehler beim Lesen des Geldautomaten an Location " + location, e);
+        }
     }
+
 
     @Override
     public <T> void save(T obj) {

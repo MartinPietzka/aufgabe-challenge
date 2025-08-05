@@ -138,6 +138,8 @@ public class RepositoryJdbcImpl implements Repository {
         } catch (SQLException e) {
             throw new RuntimeException("Rollback konnte nicht durchgeführt werden", e);
         } finally {
+            // der try with resources block schließt nur die con
+            // con muss aus dem holder entfernt werden
             connectionHolder.remove();
         }
     }
@@ -212,7 +214,7 @@ public class RepositoryJdbcImpl implements Repository {
                 }
             }
 
-            // Geldkarte mit zufälligem Pin die später vom Kunde geändert wird
+            // Geldkarte mit zufälliger Pin die später vom Kunde geändert wird
             String insertGeldkarte = "INSERT INTO geldkarte (kontonummer, karte_pin) VALUES (?, ?)";
 
             long kartennummer;

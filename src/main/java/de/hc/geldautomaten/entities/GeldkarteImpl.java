@@ -19,7 +19,6 @@ public class GeldkarteImpl implements Geldkarte {
             throw new IllegalArgumentException("kontonummer muss positiv sein.");
         }
         this.kontonummer = kontonummer;
-
         this.kartenPin = requireNonNull(kartenPin, "kartenPin darf nicht null sein.");
     }
 

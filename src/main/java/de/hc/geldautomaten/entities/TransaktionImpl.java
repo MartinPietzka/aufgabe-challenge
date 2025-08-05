@@ -16,18 +16,13 @@ public class TransaktionImpl implements Transaktion {
     private final Typ typ;
     private final LocalDateTime zeitpunkt;
 
-    public TransaktionImpl(long id, Long senderKontonummer, Long empfaengerKontonummer, Long geldautomatNummer,
-                           BigDecimal betrag, Typ typ, LocalDateTime zeitpunkt) {
+    public TransaktionImpl(long id, Long senderKontonummer, Long empfaengerKontonummer, Long geldautomatNummer, BigDecimal betrag, Typ typ, LocalDateTime zeitpunkt) {
 
-        if (id <= 0) {
-            throw new IllegalArgumentException("id muss positiv sein.");
-        }
+        if (id <= 0) throw new IllegalArgumentException("id muss positiv sein.");
         this.id = id;
 
         if (senderKontonummer == null && empfaengerKontonummer == null) {
-            throw new IllegalArgumentException(
-                    "Eine Transaktion muss ein Sender- oder ein Empfängerkonto haben."
-            );
+            throw new IllegalArgumentException("Eine Transaktion muss ein Sender- oder ein Empfängerkonto haben.");
         }
         this.senderKontonummer = senderKontonummer;
         this.empfaengerKontonummer = empfaengerKontonummer;
@@ -88,14 +83,6 @@ public class TransaktionImpl implements Transaktion {
 
     @Override
     public String toString() {
-        return "TransaktionImpl{" +
-                "id=" + id +
-                ", senderKontonummer=" + senderKontonummer +
-                ", empfaengerKontonummer=" + empfaengerKontonummer +
-                ", geldautomatNummer=" + geldautomatNummer +
-                ", betrag=" + betrag +
-                ", typ=" + typ +
-                ", zeitpunkt=" + zeitpunkt +
-                '}';
+        return "TransaktionImpl{" + "id=" + id + ", senderKontonummer=" + senderKontonummer + ", empfaengerKontonummer=" + empfaengerKontonummer + ", geldautomatNummer=" + geldautomatNummer + ", betrag=" + betrag + ", typ=" + typ + ", zeitpunkt=" + zeitpunkt + '}';
     }
 }

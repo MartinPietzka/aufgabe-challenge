@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group 'de.hc.geldautomaten'
@@ -15,4 +17,17 @@ dependencies {
     implementation("com.h2database:h2:2.3.232")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.slf4j:slf4j-simple:2.0.7")
+}
+
+application {
+    mainClass = 'de.hc.geldautomaten.Bank'
+}
+
+shadowJar {
+    archiveBaseName.set('bankapp')
+    archiveClassifier.set('')
+    archiveVersion.set(version)
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
 }

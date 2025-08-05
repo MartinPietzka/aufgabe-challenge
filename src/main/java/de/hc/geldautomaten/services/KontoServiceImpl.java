@@ -17,14 +17,22 @@ public class KontoServiceImpl implements KontoService {
 
     @Override
     public Optional<Bankkonto> findByKontonummer(long kontonummer) {
-        return Optional.empty();
+        return repository.findBankkontoByKontonummer(kontonummer);
     }
 
     @Override
     public long eroeffneKonto(String vorname, String nachname, String pin) {
-        Bankkonto erstelltesKonto = repository.createBankkonto(vorname, nachname, pin);
-        return erstelltesKonto.getKontonummer();
+        repository.beginTransaction();
+        try {
+            Bankkonto konto = repository.createBankkonto(vorname, nachname, pin);
+            repository.commitTransaction();
+            return konto.getKontonummer();
+        } catch (Exception e) {
+            repository.rollbackTransaction();
+            throw new RuntimeException("Kontoeröffnung fehlgeschlagen für " + vorname + " " + nachname, e);
+        }
     }
+
 
     @Override
     public Kontoauszug erstelleKontoauszug(Session session, LocalDate start, LocalDate inklusivesEnde) {

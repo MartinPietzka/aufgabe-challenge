@@ -13,14 +13,54 @@ import static java.util.Objects.requireNonNull;
 public class RepositoryJdbcImpl implements Repository {
 
     private final DataSource dataSource;
+    private final ThreadLocal<Connection> connectionHolder = new ThreadLocal<>();
 
     public RepositoryJdbcImpl(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+
     @Override
     public Optional<Bankkonto> findBankkontoByKontonummer(long kontonummer) {
-        return Optional.empty();
+
+        if (kontonummer <= 0) throw new IllegalArgumentException("kontonummer muss positiv sein");
+
+        String sql = """
+                SELECT *
+                FROM bankkonto b
+                JOIN kunde k ON k.kundennummer = b.kundennummer
+                JOIN geldkarte g ON g.kontonummer = b.kontonummer
+                WHERE b.kontonummer = ?
+                """;
+
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setLong(1, kontonummer);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return Optional.empty();
+
+                long kartennummer = rs.getLong("kartennummer");
+                String kartenPin = rs.getString("karte_pin");
+                Geldkarte geldkarte = new GeldkarteImpl(kartennummer, kontonummer, kartenPin);
+
+                long kundennummer = rs.getLong("kundennummer");
+                String vorname = rs.getString("vorname");
+                String nachname = rs.getString("nachname");
+                Kunde kunde = new KundeImpl(kundennummer, vorname, nachname, geldkarte);
+
+                String kontoPin = rs.getString("konto_pin");
+                BigDecimal kontostand = rs.getBigDecimal("kontostand");
+                Bankkonto bankkonto = new BankkontoImpl(kontonummer, kunde, kontoPin, kontostand);
+
+                return Optional.of(bankkonto);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("DB-Fehler beim Lesen des Bankkontos " + kontonummer, e);
+        }
     }
 
     @Override
@@ -40,25 +80,52 @@ public class RepositoryJdbcImpl implements Repository {
 
     @Override
     public void beginTransaction() {
-
+        try {
+            Connection con = dataSource.getConnection();
+            con.setAutoCommit(false);
+            connectionHolder.set(con);
+        } catch (SQLException e) {
+            throw new RuntimeException("Transaktion konnte nicht gestartet werden", e);
+        }
     }
+
 
     @Override
     public void commitTransaction() {
+        try (Connection con = connectionHolder.get()) {
+            if (con != null) con.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Commit konnte nicht durchgeführt werden", e);
+        } finally {
+            // der try with resources block schließt nur die con
+            // con muss aus dem holder entfernt werden
+            connectionHolder.remove();
 
+        }
     }
+
 
     @Override
     public void rollbackTransaction() {
-
+        try (Connection con = connectionHolder.get()) {
+            if (con != null) con.rollback();
+        } catch (SQLException e) {
+            throw new RuntimeException("Rollback konnte nicht durchgeführt werden", e);
+        } finally {
+            connectionHolder.remove();
+        }
     }
 
     @Override
     public Geldautomat createGeldautomat(Location location, BigDecimal verfuegbaresBargeld) {
 
-        String sql = "INSERT INTO geldautomat (latitude, longitude, bargeld) VALUES (?, ?, ?)";
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        Connection con = connectionHolder.get();
+        if (con == null) {
+            throw new IllegalStateException("Keine Connection vorhanden.");
+        }
+
+        String insertGeldautomat = "INSERT INTO geldautomat (latitude, longitude, bargeld) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(insertGeldautomat, Statement.RETURN_GENERATED_KEYS)) {
             ps.setDouble(1, location.latitude());
             ps.setDouble(2, location.longitude());
             ps.setBigDecimal(3, verfuegbaresBargeld);
@@ -82,9 +149,13 @@ public class RepositoryJdbcImpl implements Repository {
         requireNonNull(nachname, "nachname darf nicht null sein");
         requireNonNull(pin, "kontopin darf nicht null sein");
 
+        Connection con = connectionHolder.get();
+        if (con == null) {
+            throw new IllegalStateException("Keine Connection vorhanden.");
+        }
 
-        try (Connection con = dataSource.getConnection()) {
 
+        try {
             // Kunde
             String insertKunde = "INSERT INTO kunde (vorname, nachname) VALUES (?, ?)";
 
@@ -94,7 +165,7 @@ public class RepositoryJdbcImpl implements Repository {
                 ps.setString(2, nachname);
                 ps.executeUpdate();
                 try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (!rs.next()) throw new SQLException("Kundennummer wurde nicht generiert");
+                    if (!rs.next()) throw new SQLException("kundennummer wurde nicht generiert");
                     kundennummer = rs.getLong(1);
                 }
             }

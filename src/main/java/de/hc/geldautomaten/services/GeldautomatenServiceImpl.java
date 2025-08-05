@@ -18,8 +18,15 @@ public class GeldautomatenServiceImpl implements GeldautomatenService {
 
     @Override
     public long create(Location location, BigDecimal verfuegbaresBargeld) {
-        Geldautomat erstellterAutomat = repository.createGeldautomat(location, verfuegbaresBargeld);
-        return erstellterAutomat.getNummer();
+        repository.beginTransaction();
+        try {
+            Geldautomat erstellterAutomat = repository.createGeldautomat(location, verfuegbaresBargeld);
+            repository.commitTransaction();
+            return erstellterAutomat.getNummer();
+        } catch (Exception e) {
+            repository.rollbackTransaction();
+            throw new RuntimeException("Geldautomat konnte nicht erstellt werden.",e);
+        }
     }
 
     @Override

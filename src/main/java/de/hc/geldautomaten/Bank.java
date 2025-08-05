@@ -52,7 +52,7 @@ public class Bank {
          */
 
 
-        Repository repository = new RepositoryJdbcImpl(dataSource); // TODO Sinnvoll ermitteln
+        Repository repository = new RepositoryJdbcImpl(dataSource);
         GeldautomatenService geldautomatenService = GeldautomatenService.create(repository);
         Location location = new Location(50.681580, 7.150610);
         erstelleGeldautomaten(geldautomatenService, location);

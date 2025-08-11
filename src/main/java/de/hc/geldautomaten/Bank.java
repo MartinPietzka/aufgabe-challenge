@@ -82,27 +82,27 @@ public class Bank {
          * Aufgabe V: Bargeld mittels Geldautomat auf das Bankkonto laden
          */
 
-        bankkontoMittelsGeldautomatAufladen(geldautomatenService, geldautomat, geldautomatSession);
+        bankkontoMittelsGeldautomatAufladen(geldautomatenService, geldautomat, geldautomatSession); // Trans Nr.1
 
         /*
          * Aufgabe VI: Bargeld mittels Geldautomat vom Bankkonto abheben
          */
 
-        bargeldMittelsGeldautomatAbheben(geldautomatenService, geldautomat, geldautomatSession);
+        bargeldMittelsGeldautomatAbheben(geldautomatenService, geldautomat, geldautomatSession);  // Trans Nr.2
 
         /*
          * Aufgabe VII: Kontoauszug drucken
          */
 
-//        LocalDate today = LocalDate.now();
-//        kontoauszugDrucken(kontoService, geldautomatSession, today.minusDays(1), today, today);
+        LocalDate today = LocalDate.now();
+        kontoauszugDrucken(kontoService, geldautomatSession, today.minusDays(1), today, today);
 
         /*
          * Aufgabe VIII: Im OnlineBanking "Anmelden"
          */
 
-//        OnlineBankingService onlineBankingService = OnlineBankingService.create(repository);
-//        OnlineBankingSession onlineBankingSession = onlineBankingService.login(bankkonto.getKontonummer(), bankkonto.getKunde().getKundennummer(), "0123");
+        OnlineBankingService onlineBankingService = OnlineBankingService.create(repository);
+        OnlineBankingSession onlineBankingSession = onlineBankingService.login(bankkonto.getKontonummer(), bankkonto.getKunde().getKundennummer(), "0123");
 
         /*
          * Aufgabe IX: Geld mittels OnlineBanking an jemanden überweisen

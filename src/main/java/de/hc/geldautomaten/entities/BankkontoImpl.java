@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,16 +18,18 @@ public class BankkontoImpl implements Bankkonto {
     private final long kontonummer;
     private final Kunde kunde;
     private final String onlineBankingPin;
-    private BigDecimal kontostand;
+    private BigDecimal aktuellerKontostand;
 
-    public BankkontoImpl(long kontonummer, Kunde kunde, String onlineBankingPin, BigDecimal kontostand) {
+    private List<Transaktion> transaktionen = new ArrayList<>();
+
+    public BankkontoImpl(long kontonummer, Kunde kunde, String onlineBankingPin, BigDecimal aktuellerKontostand) {
         if (kontonummer <= 0) {
             throw new IllegalArgumentException("kontonummer muss positiv sein.");
         }
         this.kontonummer = kontonummer;
         this.kunde = requireNonNull(kunde, "kunde darf nicht null sein.");
         this.onlineBankingPin = requireNonNull(onlineBankingPin, "onlineBankingPin darf nicht null sein.");
-        this.kontostand = requireNonNull(kontostand, "kontostand darf nicht null sein.");
+        this.aktuellerKontostand = requireNonNull(aktuellerKontostand, "kontostand darf nicht null sein.");
     }
 
     @Override
@@ -50,17 +54,22 @@ public class BankkontoImpl implements Bankkonto {
 
     @Override
     public BigDecimal ermittleKontostand() {
-        return kontostand;
+        return aktuellerKontostand;
     }
 
     @Override
-    public BigDecimal ermittleKontostand(LocalDate localDate) {
-        return null;
-    }  // gehört eher in den Service?
+    public BigDecimal ermittleKontostand(LocalDate localDate) {  // liefert den Kontostand kurz vor Mitternacht
+        List<Transaktion> transaktionenBisDatum = ermitteleTransaktionen(localDate);
+        return transaktionenBisDatum.stream()
+                .map(t -> t.getBetrag())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
     @Override
-    public List<Transaktion> ermitteleTransaktionen(LocalDate inklusivesEnde) {  // gehört eher in den Service?
-        return List.of();
+    public List<Transaktion> ermitteleTransaktionen(LocalDate inklusivesEnde) {
+        return transaktionen.stream()
+                .filter(t -> !t.getZeitpunkt().toLocalDate().isAfter(inklusivesEnde))
+                .toList();
     }
 
     @Override
@@ -69,11 +78,12 @@ public class BankkontoImpl implements Bankkonto {
         if (betrag.signum() <= 0) {
             throw new IllegalArgumentException("Abzuhebender Betrag muss positiv sein.");
         }
-        if (kontostand.compareTo(betrag) < 0) {
-            throw new IllegalStateException("Kontostand nicht ausreichend. Aktuell: " + kontostand + ", benötigt: " + betrag);
+        if (aktuellerKontostand.compareTo(betrag) < 0) {
+            throw new IllegalStateException("Kontostand nicht ausreichend. Aktuell: " + aktuellerKontostand + ", benötigt: " + betrag);
         }
-        kontostand = kontostand.subtract(betrag);
-        logger.info("ABHEBUNG: Betrag {} von Konto {} abgebucht. Neuer Kontostand: {}", betrag, kontonummer, kontostand);
+        aktuellerKontostand = aktuellerKontostand.subtract(betrag);
+        transaktionen.add(new TransaktionImpl(LocalDateTime.now(), betrag.negate()));
+        logger.info("ABHEBUNG: Betrag {} von Konto {} abgebucht. Neuer Kontostand: {}", betrag, kontonummer, aktuellerKontostand);
     }
 
     @Override
@@ -82,8 +92,9 @@ public class BankkontoImpl implements Bankkonto {
         if (betrag.signum() <= 0) {
             throw new IllegalArgumentException("Aufzuladender Betrag muss positiv sein.");
         }
-        kontostand = kontostand.add(betrag);
-        logger.info("AUFLADUNG: Betrag {} auf Konto {} eingezahlt. Neuer Kontostand: {}", betrag, kontonummer, kontostand);
+        aktuellerKontostand = aktuellerKontostand.add(betrag);
+        transaktionen.add(new TransaktionImpl(LocalDateTime.now(), betrag));
+        logger.info("AUFLADUNG: Betrag {} auf Konto {} eingezahlt. Neuer Kontostand: {}", betrag, kontonummer, aktuellerKontostand);
     }
 
     @Override
@@ -104,7 +115,7 @@ public class BankkontoImpl implements Bankkonto {
         return "BankkontoImpl{" +
                 "kontonummer=" + kontonummer +
                 ", kunde=" + kunde +
-                ", kontostand=" + kontostand +
+                ", kontostand=" + aktuellerKontostand +
                 '}';
     }
 }

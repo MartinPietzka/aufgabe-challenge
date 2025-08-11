@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 public interface OnlineBankingService {
     static OnlineBankingService create(Repository repository) {
-        return null;
+        return new OnlineBankingServiceImpl(repository);
     }
 
     OnlineBankingSession login(long kontonummer, long kundennummer, String pin);

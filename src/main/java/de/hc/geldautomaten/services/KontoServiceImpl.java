@@ -2,12 +2,16 @@ package de.hc.geldautomaten.services;
 
 import de.hc.geldautomaten.Session;
 import de.hc.geldautomaten.entities.Bankkonto;
+import de.hc.geldautomaten.entities.Transaktion;
 import de.hc.geldautomaten.records.Kontoauszug;
 import de.hc.geldautomaten.repositories.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class KontoServiceImpl implements KontoService {
@@ -43,6 +47,12 @@ public class KontoServiceImpl implements KontoService {
 
     @Override
     public Kontoauszug erstelleKontoauszug(Session session, LocalDate start, LocalDate inklusivesEnde) {
-        return null;
+        Bankkonto bankkonto = session.getBankkonto();
+        BigDecimal startkontostand = bankkonto.ermittleKontostand(start.minusDays(1));
+        BigDecimal endkontostand = bankkonto.ermittleKontostand(inklusivesEnde);
+        List<Transaktion> transaktionenBisStart = bankkonto.ermitteleTransaktionen(start.minusDays(1));
+        List<Transaktion> transaktionenBisEnde = new ArrayList<>(bankkonto.ermitteleTransaktionen(inklusivesEnde));
+        transaktionenBisEnde.removeAll(transaktionenBisStart);
+        return new Kontoauszug(startkontostand, endkontostand, transaktionenBisEnde);
     }
 }

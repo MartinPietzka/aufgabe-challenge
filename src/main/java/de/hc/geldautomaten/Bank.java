@@ -82,7 +82,7 @@ public class Bank {
          * Aufgabe V: Bargeld mittels Geldautomat auf das Bankkonto laden
          */
 
-//        bankkontoMittelsGeldautomatAufladen(geldautomatenService, geldautomat, geldautomatSession);
+        bankkontoMittelsGeldautomatAufladen(geldautomatenService, geldautomat, geldautomatSession);
 
         /*
          * Aufgabe VI: Bargeld mittels Geldautomat vom Bankkonto abheben

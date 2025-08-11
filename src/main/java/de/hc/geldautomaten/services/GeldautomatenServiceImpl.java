@@ -44,12 +44,16 @@ public class GeldautomatenServiceImpl implements GeldautomatenService {
 
     @Override
     public void aufladen(GeldautomatSession session, BigDecimal betrag) {
-
+        Bankkonto bankkonto = session.getBankkonto();
+        bankkonto.aufladen(betrag);
+        Geldautomat geldautomat = session.geldautomat();
+        geldautomat.aufladen(betrag);
     }
 
     @Override
     public BigDecimal ermittleKontostand(GeldautomatSession session) {
-        return null;
+        Bankkonto bankkonto = session.getBankkonto();
+        return bankkonto.ermittleKontostand();
     }
 
     @Override

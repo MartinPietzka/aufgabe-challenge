@@ -98,6 +98,7 @@ public class BankkontoImpl implements Bankkonto {
         return Objects.hashCode(kontonummer);
     }
 
+
     @Override
     public String toString() {
         return "BankkontoImpl{" +

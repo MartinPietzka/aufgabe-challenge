@@ -36,7 +36,6 @@ public class RepositoryJdbcImpl implements Repository {
 
         try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setLong(1, kontonummer);
 
             try (ResultSet rs = ps.executeQuery()) {

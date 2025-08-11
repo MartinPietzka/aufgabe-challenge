@@ -71,10 +71,12 @@ public class GeldautomatImpl implements Geldautomat {
         return nummer == that.nummer;
     }
 
+
     @Override
     public int hashCode() {
         return Objects.hashCode(nummer);
     }
+
 
     @Override
     public String toString() {

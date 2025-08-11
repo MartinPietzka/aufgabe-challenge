@@ -100,7 +100,20 @@ public class RepositoryJdbcImpl implements Repository {
 
     @Override
     public <T> void save(T obj) {
+        Connection con = connectionHolder.get();
+        if (con == null) {
+            throw new IllegalStateException("Keine Connection vorhanden.");
+        }
+        Bankkonto bankkonto = (Bankkonto) obj;
 
+        String updateKontostand = "UPDATE bankkonto SET kontostand = ? WHERE kontonummer = ?";
+        try (PreparedStatement ps = con.prepareStatement(updateKontostand)) {
+            ps.setBigDecimal(1, bankkonto.ermittleKontostand());
+            ps.setLong(2, bankkonto.getKontonummer());
+            ps.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

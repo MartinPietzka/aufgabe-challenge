@@ -42,9 +42,9 @@ public class OnlineBankingServiceImpl implements OnlineBankingService {
         repository.beginTransaction();
         try {
             bankkontoEmpfaenger.aufladen(betrag);
-//            repository.save(bankkontoEmpfaenger);
+            repository.save(bankkontoEmpfaenger);
             bankkonto.abheben(betrag);
-//            repository.save(bankkonto);
+            repository.save(bankkonto);
 
             repository.commitTransaction();
         } catch (Exception e) {

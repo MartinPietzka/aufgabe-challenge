@@ -142,7 +142,6 @@ public class Bank {
     private static Bankkonto geldMittelsOnlineBankingUeberweisen(KontoService kontoService, OnlineBankingService onlineBankingService, OnlineBankingSession onlineBankingSession) {
         long kontonummerEmpfaenger = kontoService.eroeffneKonto("Bruce", "Banner", "4567");
         Bankkonto bankkontoEmpfaenger = kontoService.findByKontonummer(kontonummerEmpfaenger).orElseThrow();
-//        System.out.println(onlineBankingSession.getBankkonto());
         onlineBankingService.ueberweisen(onlineBankingSession, kontonummerEmpfaenger, BigDecimal.valueOf(120.5));
         assert onlineBankingService.ermittleKontostand(onlineBankingSession).doubleValue() == 9534.5;
 

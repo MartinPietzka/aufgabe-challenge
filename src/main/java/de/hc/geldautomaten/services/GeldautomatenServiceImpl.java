@@ -46,6 +46,9 @@ public class GeldautomatenServiceImpl implements GeldautomatenService {
     public void aufladen(GeldautomatSession session, BigDecimal betrag) {
         Bankkonto bankkonto = session.getBankkonto();
         bankkonto.aufladen(betrag);
+        repository.beginTransaction();
+        repository.save(bankkonto);
+        repository.commitTransaction();
         Geldautomat geldautomat = session.geldautomat();
         geldautomat.aufladen(betrag);
     }
@@ -68,6 +71,9 @@ public class GeldautomatenServiceImpl implements GeldautomatenService {
             throw new IllegalStateException("Nicht genug Bargeld im Automaten.");
 
         bankkonto.abheben(betrag);
+        repository.beginTransaction();
+        repository.save(bankkonto);
+        repository.commitTransaction();
         geldautomat.abheben(betrag);
 
         return betrag;

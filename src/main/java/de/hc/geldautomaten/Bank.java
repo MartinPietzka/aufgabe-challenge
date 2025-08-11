@@ -63,7 +63,7 @@ public class Bank {
 
         KontoService kontoService = KontoService.create(repository);
         Bankkonto bankkonto = eroeffneBankkonto(kontoService);
-        System.out.println(bankkonto);
+//        System.out.println(bankkonto);
 
         /*
          * Aufgabe III: Geldautomaten anhand der Location finden
@@ -76,19 +76,25 @@ public class Bank {
          */
 
         GeldautomatSession geldautomatSession = geldautomatenService.login(geldautomat, bankkonto.getKunde().getGeldkarte(), "4711");
-        System.out.println(geldautomatSession);
+//        System.out.println(geldautomatSession);
 
         /*
          * Aufgabe V: Bargeld mittels Geldautomat auf das Bankkonto laden
          */
+        System.out.println(geldautomatSession.getBankkonto().ermittleKontostand());
 
         bankkontoMittelsGeldautomatAufladen(geldautomatenService, geldautomat, geldautomatSession); // Trans Nr.1
+
+        System.out.println(geldautomatSession.getBankkonto().ermittleKontostand());
 
         /*
          * Aufgabe VI: Bargeld mittels Geldautomat vom Bankkonto abheben
          */
+        System.out.println(geldautomatSession.getBankkonto().ermittleKontostand());
 
         bargeldMittelsGeldautomatAbheben(geldautomatenService, geldautomat, geldautomatSession);  // Trans Nr.2
+
+        System.out.println(geldautomatSession.getBankkonto().ermittleKontostand());
 
         /*
          * Aufgabe VII: Kontoauszug drucken
@@ -104,11 +110,12 @@ public class Bank {
         OnlineBankingService onlineBankingService = OnlineBankingService.create(repository);
         OnlineBankingSession onlineBankingSession = onlineBankingService.login(bankkonto.getKontonummer(), bankkonto.getKunde().getKundennummer(), "0123");
 
+        System.out.println(onlineBankingSession.getBankkonto().ermittleKontostand());
         /*
          * Aufgabe IX: Geld mittels OnlineBanking an jemanden überweisen
          */
 
-//        Bankkonto bankkontoEmpfaenger = geldMittelsOnlineBankingUeberweisen(kontoService, onlineBankingService, onlineBankingSession);
+        Bankkonto bankkontoEmpfaenger = geldMittelsOnlineBankingUeberweisen(kontoService, onlineBankingService, onlineBankingSession);
 
         /*
          * Aufgabe VII.II: Erneuter Kontoauszug
@@ -135,6 +142,7 @@ public class Bank {
     private static Bankkonto geldMittelsOnlineBankingUeberweisen(KontoService kontoService, OnlineBankingService onlineBankingService, OnlineBankingSession onlineBankingSession) {
         long kontonummerEmpfaenger = kontoService.eroeffneKonto("Bruce", "Banner", "4567");
         Bankkonto bankkontoEmpfaenger = kontoService.findByKontonummer(kontonummerEmpfaenger).orElseThrow();
+//        System.out.println(onlineBankingSession.getBankkonto());
         onlineBankingService.ueberweisen(onlineBankingSession, kontonummerEmpfaenger, BigDecimal.valueOf(120.5));
         assert onlineBankingService.ermittleKontostand(onlineBankingSession).doubleValue() == 9534.5;
 

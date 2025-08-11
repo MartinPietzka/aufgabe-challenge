@@ -1,5 +1,6 @@
 package de.hc.geldautomaten.services;
 
+import de.hc.geldautomaten.Bank;
 import de.hc.geldautomaten.entities.Bankkonto;
 import de.hc.geldautomaten.records.OnlineBankingSession;
 import de.hc.geldautomaten.repositories.Repository;
@@ -27,11 +28,28 @@ public class OnlineBankingServiceImpl implements OnlineBankingService {
 
     @Override
     public BigDecimal ermittleKontostand(OnlineBankingSession session) {
-        return null;
+        Bankkonto bankkonto = session.getBankkonto();
+        return bankkonto.ermittleKontostand();
     }
 
     @Override
     public void ueberweisen(OnlineBankingSession session, long kontonummerEmpfaenger, BigDecimal betrag) {
+        Bankkonto bankkonto = session.getBankkonto();
+//        System.out.println(bankkonto);
+        Optional<Bankkonto> bankkontoEmpfaengerOptional = repository.findBankkontoByKontonummer(kontonummerEmpfaenger);
+        Bankkonto bankkontoEmpfaenger = bankkontoEmpfaengerOptional.orElseThrow();
 
+        repository.beginTransaction();
+        try {
+            bankkontoEmpfaenger.aufladen(betrag);
+//            repository.save(bankkontoEmpfaenger);
+            bankkonto.abheben(betrag);
+//            repository.save(bankkonto);
+
+            repository.commitTransaction();
+        } catch (Exception e) {
+            repository.rollbackTransaction();
+            throw new RuntimeException("Überweisung fehlgeschlagen", e);
+        }
     }
 }

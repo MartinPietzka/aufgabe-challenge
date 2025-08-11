@@ -63,6 +63,7 @@ public class Bank {
 
         KontoService kontoService = KontoService.create(repository);
         Bankkonto bankkonto = eroeffneBankkonto(kontoService);
+        System.out.println(bankkonto);
 
         /*
          * Aufgabe III: Geldautomaten anhand der Location finden
@@ -74,7 +75,8 @@ public class Bank {
          * Aufgabe IV: Am Geldautomaten "Anmelden"
          */
 
-//        GeldautomatSession geldautomatSession = geldautomatenService.login(geldautomat, bankkonto.getKunde().getGeldkarte(), "0123");
+        GeldautomatSession geldautomatSession = geldautomatenService.login(geldautomat, bankkonto.getKunde().getGeldkarte(), "4711");
+        System.out.println(geldautomatSession);
 
         /*
          * Aufgabe V: Bargeld mittels Geldautomat auf das Bankkonto laden

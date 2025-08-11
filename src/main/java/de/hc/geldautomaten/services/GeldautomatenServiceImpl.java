@@ -1,5 +1,7 @@
 package de.hc.geldautomaten.services;
 
+import de.hc.geldautomaten.Bank;
+import de.hc.geldautomaten.entities.Bankkonto;
 import de.hc.geldautomaten.entities.Geldautomat;
 import de.hc.geldautomaten.entities.Geldkarte;
 import de.hc.geldautomaten.records.GeldautomatSession;
@@ -57,6 +59,10 @@ public class GeldautomatenServiceImpl implements GeldautomatenService {
 
     @Override
     public GeldautomatSession login(Geldautomat geldautomat, Geldkarte geldkarte, String pin) {
-        return null;
+        if (!geldkarte.checkPin(pin)) throw new IllegalStateException("Pin falsch");
+        long kontonummer = geldkarte.getKontonummer();
+        Optional<Bankkonto> bankkontoOptional = repository.findBankkontoByKontonummer(kontonummer);
+        Bankkonto bankkonto = bankkontoOptional.orElseThrow();
+        return new GeldautomatSession(geldautomat, bankkonto);
     }
 }

@@ -88,7 +88,7 @@ public class Bank {
          * Aufgabe VI: Bargeld mittels Geldautomat vom Bankkonto abheben
          */
 
-//        bargeldMittelsGeldautomatAbheben(geldautomatenService, geldautomat, geldautomatSession);
+        bargeldMittelsGeldautomatAbheben(geldautomatenService, geldautomat, geldautomatSession);
 
         /*
          * Aufgabe VII: Kontoauszug drucken

@@ -58,7 +58,19 @@ public class GeldautomatenServiceImpl implements GeldautomatenService {
 
     @Override
     public BigDecimal abheben(GeldautomatSession session, BigDecimal betrag) {
-        return null;
+        Bankkonto bankkonto = session.getBankkonto();
+        Geldautomat geldautomat = session.geldautomat();
+
+        if (bankkonto.ermittleKontostand().compareTo(betrag) < 0)
+            throw new IllegalStateException("Kontostand nicht ausreichend.");
+
+        if (geldautomat.ermittleVerfuegbaresBargeld().compareTo(betrag) < 0)
+            throw new IllegalStateException("Nicht genug Bargeld im Automaten.");
+
+        bankkonto.abheben(betrag);
+        geldautomat.abheben(betrag);
+
+        return betrag;
     }
 
     @Override

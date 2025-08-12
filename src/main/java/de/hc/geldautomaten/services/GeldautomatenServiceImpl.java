@@ -45,12 +45,19 @@ public class GeldautomatenServiceImpl implements GeldautomatenService {
     @Override
     public void aufladen(GeldautomatSession session, BigDecimal betrag) {
         Bankkonto bankkonto = session.getBankkonto();
-        bankkonto.aufladen(betrag);
-        repository.beginTransaction();
-        repository.save(bankkonto);
-        repository.commitTransaction();
         Geldautomat geldautomat = session.geldautomat();
+        bankkonto.aufladen(betrag);
         geldautomat.aufladen(betrag);
+
+        repository.beginTransaction();
+        try {
+            repository.save(bankkonto);
+            repository.save(geldautomat);
+            repository.commitTransaction();
+        } catch (Exception e) {
+            repository.rollbackTransaction();
+            throw new RuntimeException("Aufladen fehlgeschlagen.", e);
+        }
     }
 
     @Override
@@ -66,17 +73,22 @@ public class GeldautomatenServiceImpl implements GeldautomatenService {
 
         if (bankkonto.ermittleKontostand().compareTo(betrag) < 0)
             throw new IllegalStateException("Kontostand nicht ausreichend.");
-
         if (geldautomat.ermittleVerfuegbaresBargeld().compareTo(betrag) < 0)
             throw new IllegalStateException("Nicht genug Bargeld im Automaten.");
 
         bankkonto.abheben(betrag);
-        repository.beginTransaction();
-        repository.save(bankkonto);
-        repository.commitTransaction();
         geldautomat.abheben(betrag);
 
-        return betrag;
+        repository.beginTransaction();
+        try {
+            repository.save(bankkonto);
+            repository.save(geldautomat);
+            repository.commitTransaction();
+            return betrag;
+        } catch (RuntimeException e) {
+            repository.rollbackTransaction();
+            throw new RuntimeException("Abhebung fehlgeschlagen.", e);
+        }
     }
 
     @Override

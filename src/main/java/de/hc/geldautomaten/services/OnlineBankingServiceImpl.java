@@ -35,17 +35,16 @@ public class OnlineBankingServiceImpl implements OnlineBankingService {
     @Override
     public void ueberweisen(OnlineBankingSession session, long kontonummerEmpfaenger, BigDecimal betrag) {
         Bankkonto bankkonto = session.getBankkonto();
-//        System.out.println(bankkonto);
         Optional<Bankkonto> bankkontoEmpfaengerOptional = repository.findBankkontoByKontonummer(kontonummerEmpfaenger);
         Bankkonto bankkontoEmpfaenger = bankkontoEmpfaengerOptional.orElseThrow();
 
+        bankkontoEmpfaenger.aufladen(betrag);
+        bankkonto.abheben(betrag);
+
         repository.beginTransaction();
         try {
-            bankkontoEmpfaenger.aufladen(betrag);
             repository.save(bankkontoEmpfaenger);
-            bankkonto.abheben(betrag);
             repository.save(bankkonto);
-
             repository.commitTransaction();
         } catch (Exception e) {
             repository.rollbackTransaction();

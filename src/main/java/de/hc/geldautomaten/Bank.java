@@ -114,8 +114,11 @@ public class Bank {
          * Aufgabe VII.II: Erneuter Kontoauszug
          */
 
-//        OnlineBankingSession onlineBankingSessionEmpfaenger = onlineBankingService.login(bankkontoEmpfaenger.getKontonummer(), bankkontoEmpfaenger.getKunde().getKundennummer(), "4567");
-//        kontoauszugDruckenNachOnlineBanking(kontoService, geldautomatSession, onlineBankingSessionEmpfaenger, today);
+        OnlineBankingSession onlineBankingSessionEmpfaenger = onlineBankingService.login(
+                bankkontoEmpfaenger.getKontonummer(),
+                bankkontoEmpfaenger.getKunde().getKundennummer(),
+                "4567");
+        kontoauszugDruckenNachOnlineBanking(kontoService, geldautomatSession, onlineBankingSessionEmpfaenger, today);
     }
 
 
@@ -123,6 +126,7 @@ public class Bank {
 
         Kontoauszug zweiterKontoauszug = kontoService.erstelleKontoauszug(sessionKunde, today.minusDays(1), today);
         assert zweiterKontoauszug.startkontostand().doubleValue() == 0;
+        System.out.println(zweiterKontoauszug.transaktionen().size());
         assert zweiterKontoauszug.transaktionen().size() == 3;
         assert zweiterKontoauszug.endkontostand().doubleValue() == 9534.5;
 
